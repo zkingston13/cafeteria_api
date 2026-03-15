@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\PedidoApiController;
 use App\Http\Controllers\ProductosController;
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +16,17 @@ use App\Http\Controllers\ProductosController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('/registro',[ClienteController::class,'store'])->name('registro.store');
+
+Route::post('/login',[ClienteController::class,'login']);
+
+
+Route::post('/pedidos', [PedidoApiController::class, 'store']);
+Route::get('/pedidos', [PedidoApiController::class, 'index']);
+Route::get('/pedidos/{id}', [PedidoApiController::class, 'show']);
+Route::put('/pedidos/{id}/estado', [PedidoApiController::class, 'updateEstado']);
+Route::get('/pedidos/cliente/{id_cliente}', [PedidoApiController::class, 'getByCliente']);
+Route::get('/mesas', [PedidoApiController::class, 'getMesas']);
 
 //productos
 Route::prefix('productos')->group(function(){
