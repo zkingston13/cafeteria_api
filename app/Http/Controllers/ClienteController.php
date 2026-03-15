@@ -7,18 +7,11 @@ use App\Models\Cliente;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class ClienteController extends Authenticatable
+class ClienteController extends Controller
 {
 
 
     public function store(Request $request){
-
-        $request->validate([
-            'nombre' => 'required|max:100',
-            'telefono' => 'nullable|max:15',
-            'email' => 'required|email|unique:clientes,email',
-            'password' => 'required|min:6'
-        ]);
 
         $cliente = Cliente::create([
             'nombre' => $request->nombre,

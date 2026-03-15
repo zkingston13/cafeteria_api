@@ -7,6 +7,7 @@ use App\Models\Categoria;
 use App\Models\productos;
 
 Class ProductosController extends Controller{
+    
 public function index() {
 
 $productos= Productos::with('categorias')->get();

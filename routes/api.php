@@ -16,7 +16,7 @@ use App\Http\Controllers\ProductosController;
 |
 */
 
-Route::post('/registro',[ClienteController::class,'store'])->name('registro.store');
+Route::post('/registro',[ClienteController::class,'store']);
 
 Route::post('/login',[ClienteController::class,'login']);
 

@@ -11,6 +11,7 @@ class DetallePedido extends Model
 
     protected $table = 'detalle_pedidos';
     protected $primaryKey = 'id_detalle';
+    public $timestamps = false;
 
     protected $fillable = [
         'id_pedido',
