@@ -21,6 +21,11 @@ Route::post('/registro',[ClienteController::class,'store']);
 Route::post('/login',[ClienteController::class,'login']);
 
 
+Route::middleware('auth:api')->group(function () {
+     Route::post('/logout',[ClienteController::class,'logout']);
+    Route::get('/perfil',[ClienteController::class,'perfil']);
+    Route::put('/clientes/{id_cliente}',[ClienteController::class,'update']);
+
 Route::post('/pedidos', [PedidoApiController::class, 'store']);
 Route::get('/pedidos', [PedidoApiController::class, 'index']);
 Route::get('/pedidos/{id}', [PedidoApiController::class, 'show']);
@@ -32,4 +37,6 @@ Route::get('/mesas', [PedidoApiController::class, 'getMesas']);
 Route::prefix('productos')->group(function(){
 Route::get('/',[ProductosController::class,'index']);
 Route::get('/{id_producto}',[ProductosController::class,'show']);
+});
+
 });
