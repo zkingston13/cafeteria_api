@@ -38,15 +38,25 @@ class PedidoApiController extends Controller
             ]);
 
             // Crear los detalles del pedido
-            foreach ($request->detalles as $detalle) {
-                DetallePedido::create([
-                    'id_pedido' => $pedido->id_pedido,
-                    'id_producto' => $detalle['id_producto'],
-                    'cantidad' => $detalle['cantidad'],
-                    'precio_unitario' => $detalle['precio_unitario'],
-                    'subtotal' => $detalle['subtotal']
-                ]);
-            }
+           foreach ($request->detalles as $detalle) {
+
+    $producto = Producto::find($detalle['id_producto']);
+
+    if($producto->stock < $detalle['cantidad']){
+        throw new \Exception("Stock insuficiente para ".$producto->nombre);
+    }
+
+    $producto->stock -= $detalle['cantidad'];
+    $producto->save();
+
+    DetallePedido::create([
+        'id_pedido' => $pedido->id_pedido,
+        'id_producto' => $detalle['id_producto'],
+        'cantidad' => $detalle['cantidad'],
+        'precio_unitario' => $detalle['precio_unitario'],
+        'subtotal' => $detalle['subtotal']
+    ]);
+}
 
             DB::commit();
 
@@ -156,4 +166,30 @@ class PedidoApiController extends Controller
             'mesas' => $mesas
         ]);
     }
+    public function cancelar($id)
+{
+    $pedido = Pedido::find($id);
+
+    if(!$pedido){
+        return response()->json([
+            'success'=>false,
+            'message'=>'Pedido no encontrado'
+        ],404);
+    }
+
+    if($pedido->estado == 'cancelado'){
+        return response()->json([
+            'success'=>false,
+            'message'=>'El pedido ya está cancelado'
+        ]);
+    }
+
+    $pedido->estado = 'cancelado';
+    $pedido->save();
+
+    return response()->json([
+        'success'=>true,
+        'message'=>'Pedido cancelado'
+    ]);
+}
 }

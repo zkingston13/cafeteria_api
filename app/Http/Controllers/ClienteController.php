@@ -33,7 +33,7 @@ class ClienteController extends Controller
 
     }
 public function update(Request $request, $id_cliente){
-    //return response()->json($request->all());
+   
     $validator = Validator::make(
     ['id_cliente' => $id_cliente],
     ['id_cliente' => 'required|integer|min:1|exists:clientes,id_cliente']
