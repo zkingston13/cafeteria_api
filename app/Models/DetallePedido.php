@@ -9,7 +9,7 @@ class DetallePedido extends Model
 {
     use HasFactory;
 
-    protected $table = 'detalle_pedidos';
+    protected $table = 'detalle_pedido';
     protected $primaryKey = 'id_detalle';
     public $timestamps = false;
 
@@ -21,7 +21,6 @@ class DetallePedido extends Model
         'subtotal'
     ];
 
-    public $timestamps = false;
 
     public function pedido()
     {

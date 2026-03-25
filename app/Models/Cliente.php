@@ -14,15 +14,15 @@ class Cliente extends Authenticatable
      protected $primaryKey = 'id_cliente';
      public $timestamps = false;
 
-    protected $fillable = [
-        'nombre',
-        'apellidoP',
-        'apellidoM',
-        'email',
-        'telefono',
-        'fecha_registro',
-        'password'
-    ];
+   protected $fillable = [
+    'nombre',
+    'apellidoP',
+    'apellidoM',
+    'telefono',
+    'email',
+    'fecha_registro',
+    'password'
+];
 
     protected $hidden = [
         'password'

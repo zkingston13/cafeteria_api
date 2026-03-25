@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Categoria;
-use App\Models\productos;
+use App\Models\Productos;
 
 Class ProductosController extends Controller{
     
@@ -24,16 +24,14 @@ public function show($id_producto){
         ],422);
     }
 
-    $productos= Productos::with('categorias')->find($id_producto);
-    if(!$productos){
-         if(!$producto){
+    $producto= Productos::with('categorias')->find($id_producto);
+    if(!$producto){
         return response()->json([
             'resultado' => false,
             'datos' => null
         ], 404);
     }
-    }
-    return response()->json(['resultado'=>true, 'datos'=>$productos],200);
+    return response()->json(['resultado'=>true, 'datos'=>$producto],200);
 
 
 }

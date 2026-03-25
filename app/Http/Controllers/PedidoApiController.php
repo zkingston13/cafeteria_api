@@ -12,88 +12,74 @@ class PedidoApiController extends Controller
     /**
      * Crear un nuevo pedido
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'id_cliente' => 'nullable|integer|exists:clientes,id_cliente',
-            'id_mesa' => 'nullable|integer|exists:mesas,id_mesa',
-            'total' => 'required|numeric|min:0',
-            'detalles' => 'required|array|min:1',
-            'detalles.*.id_producto' => 'required|integer|exists:productos,id_producto',
-            'detalles.*.cantidad' => 'required|integer|min:1',
-            'detalles.*.precio_unitario' => 'required|numeric|min:0',
-            'detalles.*.subtotal' => 'required|numeric|min:0'
-        ]);
-
-        try {
+public function store(Request $request){
+         try {
             DB::beginTransaction();
 
-            // Crear el pedido
+            // 🔹 Obtener cliente desde token
+            $cliente = $request->user();
+
+            // 🔹 Crear pedido (cabecera)
             $pedido = Pedido::create([
-                'id_cliente' => $request->id_cliente,
+                'id_cliente' => $cliente->id_cliente,
                 'id_mesa' => $request->id_mesa,
-                'fecha' => now(),
-                'estado' => 'pendiente',
-                'total' => $request->total
+                'total' => $request->total,
+                'estado' => 'pendiente'
             ]);
 
-            // Crear los detalles del pedido
-           foreach ($request->detalles as $detalle) {
-
-    $producto = Producto::find($detalle['id_producto']);
-
-    if($producto->stock < $detalle['cantidad']){
-        throw new \Exception("Stock insuficiente para ".$producto->nombre);
-    }
-
-    $producto->stock -= $detalle['cantidad'];
-    $producto->save();
-
-    DetallePedido::create([
-        'id_pedido' => $pedido->id_pedido,
-        'id_producto' => $detalle['id_producto'],
-        'cantidad' => $detalle['cantidad'],
-        'precio_unitario' => $detalle['precio_unitario'],
-        'subtotal' => $detalle['subtotal']
-    ]);
-}
-
+            // 🔹 Guardar detalles
+            foreach ($request->detalles as $detalle) {
+                DetallePedido::create([
+                    'id_pedido' => $pedido->id_pedido,
+                    'id_producto' => $detalle['id_producto'],
+                    'cantidad' => $detalle['cantidad'],
+                    'precio_unitario' => $detalle['precio_unitario'],
+                    'subtotal' => $detalle['subtotal']
+                ]);
+            }
+  // Debug: Ver qué datos están llegando
+        \Log::info('Datos del pedido:', $request->all());
             DB::commit();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Pedido creado correctamente',
-                'pedido' => $pedido->load('detalles')
+                'resultado' => true,
+                'mensaje' => 'Pedido creado correctamente',
+                'pedido' => $pedido
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+             \Log::error('Error en store:', [
+            'message' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Error al crear el pedido: ' . $e->getMessage()
+                'resultado' => false,
+                'mensaje' => 'Error al crear pedido',
+                'error' => $e->getMessage()
             ], 500);
         }
-    }
+}
 
     /**
      * Obtener todos los pedidos
      */
-    public function index()
-    {
+public function index(){
         $pedidos = Pedido::with(['cliente', 'mesa', 'detalles.producto'])->get();
         
         return response()->json([
             'success' => true,
             'pedidos' => $pedidos
         ]);
-    }
+}
 
     /**
      * Obtener un pedido específico
      */
-    public function show($id)
-    {
+    public function show($id){
         $pedido = Pedido::with(['cliente', 'mesa', 'detalles.producto'])->find($id);
         
         if (!$pedido) {
@@ -107,7 +93,7 @@ class PedidoApiController extends Controller
             'success' => true,
             'pedido' => $pedido
         ]);
-    }
+}
 
     /**
      * Actualizar estado del pedido

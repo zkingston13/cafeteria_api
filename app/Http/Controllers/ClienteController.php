@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\DB;
 class ClienteController extends Controller
 {
 
-
-    public function store(Request $requestuest){
+public function store(Request $requestuest){
 
         $cliente = Cliente::create([
             'nombre' => $requestuest->nombre,
@@ -26,12 +25,14 @@ class ClienteController extends Controller
             'password' => Hash::make($requestuest->password)
         ]);
 
+
         return response()->json([
             'mensaje' => 'Cliente registrado correctamente',
             'cliente' => $cliente
         ],201);
 
-    }
+}
+
 public function update(Request $request, $id_cliente){
    
     $validator = Validator::make(
@@ -71,19 +72,26 @@ public function update(Request $request, $id_cliente){
         return response()->json(['message' => 'Error', 'error' => $e->getMessage()], 500);
     }
 }
-   public function login(Request $requestuest){
 
-    $cliente = Cliente::where('email',$requestuest->email)->first();
-
-    if(!$cliente || !Hash::check($requestuest->password,$cliente->password)){
-        return response()->json([
-            'mensaje' => 'Credenciales incorrectas'
-        ],401);
+public function login(Request $request){
+    \Log::info('Intento de login', ['email' => $request->email]);
+    
+    $cliente = Cliente::where('email', $request->email)->first();
+    
+    if(!$cliente) {
+        \Log::warning('Usuario no encontrado', ['email' => $request->email]);
+        return response()->json(['mensaje' => 'Credenciales incorrectas'], 401);
     }
-
+    
+    if(!Hash::check($request->password, $cliente->password)) {
+        \Log::warning('Contraseña incorrecta', ['email' => $request->email]);
+        return response()->json(['mensaje' => 'Credenciales incorrectas'], 401);
+    }
 
     $token = $cliente->createToken('cliente-token')->accessToken;
 
+    \Log::info('Login exitoso', ['email' => $request->email, 'cliente_id' => $cliente->id_cliente]);
+    
     return response()->json([
         'mensaje' => 'Login correcto',
         'cliente' => $cliente,
@@ -91,8 +99,7 @@ public function update(Request $request, $id_cliente){
     ]);
 }
 
-public function logout(Request $requestuest)
-{
+public function logout(Request $requestuest){
     $user = $requestuest->user();
 
     if ($user) {
@@ -109,6 +116,7 @@ public function perfil(Request $requestuest)
         'cliente' => $requestuest->user()
     ]);
 }
+
 }
 
 
