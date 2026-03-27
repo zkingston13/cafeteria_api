@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pedido;
 use App\Models\DetallePedido;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PedidoApiController extends Controller
 {
@@ -44,7 +45,8 @@ public function store(Request $request){
             return response()->json([
                 'resultado' => true,
                 'mensaje' => 'Pedido creado correctamente',
-                'pedido' => $pedido
+                'pedido' => $pedido,
+                'id_pedido' => $pedido->id_pedido
             ], 201);
 
         } catch (\Exception $e) {
@@ -73,25 +75,6 @@ public function index(){
         return response()->json([
             'success' => true,
             'pedidos' => $pedidos
-        ]);
-}
-
-    /**
-     * Obtener un pedido específico
-     */
-    public function show($id){
-        $pedido = Pedido::with(['cliente', 'mesa', 'detalles.producto'])->find($id);
-        
-        if (!$pedido) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pedido no encontrado'
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'pedido' => $pedido
         ]);
 }
 
