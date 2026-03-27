@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pedido;
+use Illuminate\Support\Facades\DB;
 
 class PagoController extends Controller
 {
     public function store(Request $request)
     {
+        $cliente = $request->user();
+
         $request->validate([
             'id_pedido' => 'required|exists:pedidos,id_pedido',
             'metodo_pago' => 'required|in:efectivo,tarjeta',
@@ -39,10 +42,10 @@ class PagoController extends Controller
         }
     }
 
-    public function totalPago($id_pedido)
+    public function totalPago(Request $request, $id_pedido)
     {
         // Obtener el cliente logueado
-        $cliente = auth('sanctum')->user();
+        $cliente = $request->user();
         
         if (!$cliente) {
             return response()->json([
@@ -68,18 +71,6 @@ class PagoController extends Controller
             "total" => $pedido->total,
             "id_pedido" => $pedido->id_pedido,
             "estado" => $pedido->estado
-        ]);
-    }
-
-    public function update($id_pedido){
-        
-        $pedido = Pedido::find($id_pedido);
-
-        $pedido->estado = 'pagado';
-
-        return response()->json()([
-            "success" => true,
-            "message" => "pedido actualizado"
         ]);
     }
 
