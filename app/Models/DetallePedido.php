@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Productos;
+use App\Models\Pedido;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class DetallePedido extends Model
 {
     use HasFactory;
 
-    protected $table = 'detalle_pedidos';
+    protected $table = 'detalle_pedido';
     protected $primaryKey = 'id_detalle';
     public $timestamps = false;
 
@@ -21,7 +25,7 @@ class DetallePedido extends Model
         'subtotal'
     ];
 
-    public $timestamps = false;
+  
 
     public function pedido()
     {
@@ -30,6 +34,6 @@ class DetallePedido extends Model
 
     public function producto()
     {
-        return $this->belongsTo(Producto::class, 'id_producto');
+        return $this->belongsTo(Productos::class, 'id_producto');
     }
 }
